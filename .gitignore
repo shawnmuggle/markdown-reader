@@ -11,3 +11,6 @@ node_modules/
 
 # 备份文件
 *.bak
+
+# 构建产物（用 ./pack.sh 重新生成）
+markdown-reader.zip

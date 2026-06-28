@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<!--
+  上架截图生成页：复用插件真实 CSS/JS 渲染一段展示用 Markdown，
+  套上仿浏览器外框，输出 1280×800。用 headless Chrome --screenshot 截图。
+  仅用于生成 promo 图，不随扩展打包。
+-->
+<html lang="zh-CN" data-theme="light">
+<head>
+  <meta charset="utf-8" />
+  <title>Markdown Reader — promo</title>
+
+  <!-- 真实插件样式 -->
+  <link rel="stylesheet" href="../lib/github-markdown.css" />
+  <link rel="stylesheet" href="../lib/github-markdown-theme-override.css" />
+  <link rel="stylesheet" href="../lib/hljs-themes.css" />
+  <link rel="stylesheet" href="../src/reader.css" />
+
+  <style>
+    /* 截图画布与外框（仅 promo 用，不影响插件本身） */
+    html, body { margin: 0; }
+    body {
+      width: 1280px;
+      height: 800px;
+      overflow: hidden;
+      background: linear-gradient(135deg, #0969da 0%, #0a3069 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", sans-serif;
+    }
+    /* 左侧文案区 */
+    .promo-wrap {
+      display: flex;
+      align-items: center;
+      gap: 36px;
+      padding: 0 56px;
+      box-sizing: border-box;
+      width: 100%;
+    }
+    .promo-copy { color: #fff; flex: 0 0 300px; }
+    .promo-copy .logo {
+      font-size: 30px; font-weight: 800; letter-spacing: -0.5px;
+      display: flex; align-items: center; gap: 10px; margin-bottom: 18px;
+    }
+    .promo-copy .logo img { width: 44px; height: 44px; border-radius: 10px; }
+    .promo-copy h1 { font-size: 30px; line-height: 1.25; margin: 0 0 16px; font-weight: 700; }
+    .promo-copy ul { list-style: none; padding: 0; margin: 0; font-size: 16px; line-height: 2.1; }
+    .promo-copy li::before { content: "✓"; color: #7ee787; font-weight: 800; margin-right: 10px; }
+
+    /* 仿浏览器窗口 */
+    .window {
+      flex: 1;
+      max-width: 820px;
+      height: 660px;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 24px 60px rgba(0,0,0,0.35);
+      background: var(--color-canvas-default, #fff);
+      display: flex; flex-direction: column;
+    }
+    .chrome-bar {
+      height: 40px; background: #e8eaed; display: flex; align-items: center;
+      padding: 0 14px; gap: 8px; flex: 0 0 40px;
+    }
+    .dot { width: 12px; height: 12px; border-radius: 50%; }
+    .dot.r { background: #ff5f57; } .dot.y { background: #febc2e; } .dot.g { background: #28c840; }
+    .url {
+      flex: 1; margin-left: 12px; height: 24px; background: #fff; border-radius: 12px;
+      display: flex; align-items: center; padding: 0 12px; font-size: 12px; color: #5f6368;
+    }
+    /* 把插件阅读视图塞进窗口，缩掉 100vh 之类的全屏假设 */
+    .window #md-reader-root { min-height: 0; flex: 1; height: 100%; }
+    .window #md-body { height: calc(100% - 48px); }
+    .window #md-toc { height: 100%; flex: 0 0 200px; width: 200px; }
+    .window #md-content { padding: 24px 28px; }
+    .window #md-toolbar { position: static; }
+
+    /* 强制锁定亮色：headless Chrome 的 prefers-color-scheme 不确定，
+       这里硬覆盖 markdown 正文的明色变量，保证截图永远是清晰的浅色主题。 */
+    .window, .window .markdown-body {
+      color-scheme: light;
+      --color-fg-default: #1f2328;
+      --color-fg-muted: #59636e;
+      --color-canvas-default: #ffffff;
+      --color-canvas-subtle: #f6f8fa;
+      --color-border-default: #d1d9e0;
+      --color-accent-fg: #0969da;
+      --color-accent-subtle: #ddf4ff;
+    }
+    .window .markdown-body,
+    .window .markdown-body h1,
+    .window .markdown-body h2,
+    .window .markdown-body h3,
+    .window .markdown-body p,
+    .window .markdown-body td,
+    .window .markdown-body li {
+      color: #1f2328 !important;
+    }
+    .window .markdown-body h1,
+    .window .markdown-body h2 { border-bottom-color: #d1d9e0 !important; }
+  </style>
+</head>
+<body>
+  <div class="promo-wrap">
+    <div class="promo-copy">
+      <div class="logo"><img src="../icons/icon128.png" alt="" />Markdown Reader</div>
+      <h1>本地 Markdown<br/>一拖即读</h1>
+      <ul>
+        <li>GitHub 风格渲染</li>
+        <li>侧边目录导航</li>
+        <li>代码高亮</li>
+        <li>深 / 浅色切换</li>
+        <li>表格 &amp; Mermaid</li>
+      </ul>
+    </div>
+
+    <div class="window">
+      <div class="chrome-bar">
+        <span class="dot r"></span><span class="dot y"></span><span class="dot g"></span>
+        <span class="url">file:///Users/you/notes.md</span>
+      </div>
+      <div id="md-reader-root">
+        <div id="md-toolbar">
+          <button id="md-toc-toggle">☰</button>
+          <span id="md-title">notes.md</span>
+          <span id="md-spacer"></span>
+          <select id="md-lang-select"><option>中文</option></select>
+          <button id="md-theme-toggle">🌙</button>
+        </div>
+        <div id="md-body">
+          <nav id="md-toc"></nav>
+          <main id="md-content" class="markdown-body"></main>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 真实渲染管线 -->
+  <script src="../lib/marked.min.js"></script>
+  <script src="../lib/purify.min.js"></script>
+  <script src="../lib/highlight.min.js"></script>
+  <script src="../src/render.js"></script>
+  <script src="../src/toc.js"></script>
+  <!-- 用 script 标签存放原始 Markdown，避免反引号在 JS 模板字符串里的转义问题 -->
+  <script type="text/markdown" id="demo-md">
+# 项目笔记
+
+## 快速开始
+
+把 `.md` 文件拖进 Chrome，立刻得到漂亮的阅读视图。
+
+```javascript
+function render(markdown) {
+  const html = marked.parse(markdown);
+  return DOMPurify.sanitize(html);
+}
+```
+
+## 功能对照
+
+| 功能 | 状态 | 说明 |
+| ---- | :--: | ---- |
+| 目录导航 | ✅ | 侧边 TOC + 滚动高亮 |
+| 代码高亮 | ✅ | highlight.js |
+| 深浅色 | ✅ | 记忆偏好 |
+
+## 待办
+
+- [x] 渲染本地文件
+- [x] 代码高亮
+- [ ] 上架 Chrome Web Store
+  </script>
+  <script>
+    const DEMO = document.getElementById("demo-md").textContent;
+    const content = document.getElementById("md-content");
+    content.innerHTML = window.MDReader.markdownToSafeHtml(DEMO);
+    window.MDReader.enhanceCodeBlocks(content);
+    window.MDReader.buildToc(content, document.getElementById("md-toc"));
+    document.documentElement.setAttribute("data-ready", "1");
+  </script>
+</body>
+</html>
