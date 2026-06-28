@@ -104,13 +104,13 @@
   <div class="promo-wrap">
     <div class="promo-copy">
       <div class="logo"><img src="../icons/icon128.png" alt="" />Markdown Reader</div>
-      <h1>本地 Markdown<br/>一拖即读</h1>
+      <h1>Local Markdown,<br/>just drag &amp; read</h1>
       <ul>
-        <li>GitHub 风格渲染</li>
-        <li>侧边目录导航</li>
-        <li>代码高亮</li>
-        <li>深 / 浅色切换</li>
-        <li>表格 &amp; Mermaid</li>
+        <li>GitHub-style rendering</li>
+        <li>Sidebar outline (TOC)</li>
+        <li>Syntax highlighting</li>
+        <li>Light / dark toggle</li>
+        <li>Tables &amp; Mermaid</li>
       </ul>
     </div>
 
@@ -124,7 +124,7 @@
           <button id="md-toc-toggle">☰</button>
           <span id="md-title">notes.md</span>
           <span id="md-spacer"></span>
-          <select id="md-lang-select"><option>中文</option></select>
+          <select id="md-lang-select"><option>English</option></select>
           <button id="md-theme-toggle">🌙</button>
         </div>
         <div id="md-body">
@@ -143,11 +143,11 @@
   <script src="../src/toc.js"></script>
   <!-- 用 script 标签存放原始 Markdown，避免反引号在 JS 模板字符串里的转义问题 -->
   <script type="text/markdown" id="demo-md">
-# 项目笔记
+# Project Notes
 
-## 快速开始
+## Quick Start
 
-把 `.md` 文件拖进 Chrome，立刻得到漂亮的阅读视图。
+Drag a `.md` file into Chrome and instantly get a clean, readable view.
 
 ```javascript
 function render(markdown) {
@@ -156,19 +156,19 @@ function render(markdown) {
 }
 ```
 
-## 功能对照
+## Feature Overview
 
-| 功能 | 状态 | 说明 |
-| ---- | :--: | ---- |
-| 目录导航 | ✅ | 侧边 TOC + 滚动高亮 |
-| 代码高亮 | ✅ | highlight.js |
-| 深浅色 | ✅ | 记忆偏好 |
+| Feature | Status | Notes |
+| ------- | :----: | ----- |
+| Outline (TOC) | ✅ | Sidebar + scroll-spy |
+| Syntax highlight | ✅ | highlight.js |
+| Light / dark | ✅ | Remembers choice |
 
-## 待办
+## To-do
 
-- [x] 渲染本地文件
-- [x] 代码高亮
-- [ ] 上架 Chrome Web Store
+- [x] Render local files
+- [x] Syntax highlighting
+- [ ] Publish to Chrome Web Store
   </script>
   <script>
     const DEMO = document.getElementById("demo-md").textContent;
