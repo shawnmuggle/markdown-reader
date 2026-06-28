@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "Markdown Reader",
   "version": "1.0.0",
-  "description": "把本地或在线的 .md / .markdown 文件渲染成 GitHub 风格的阅读视图，支持目录导航、代码高亮、深浅色切换、表格与 Mermaid 流程图。",
+  "description": "Render local & online Markdown into a clean, GitHub-styled view: TOC, syntax highlighting, dark mode, tables & Mermaid.",
   "icons": {
     "16": "icons/icon16.png",
     "48": "icons/icon48.png",
