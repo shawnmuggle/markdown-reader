@@ -1,0 +1,13 @@
+# macOS
+.DS_Store
+
+# 编辑器
+.vscode/
+.idea/
+*.swp
+
+# 测试临时产物（项目本身零依赖，不应有 node_modules）
+node_modules/
+
+# 备份文件
+*.bak
