@@ -62,6 +62,23 @@ html.md-reader-host body {
   background: var(--color-canvas-subtle, #eaeef2);
 }
 
+/* 语言下拉：与工具栏按钮同款外观 */
+#md-lang-select {
+  height: 34px;
+  padding: 0 8px;
+  border: 1px solid var(--color-border-default, #d0d7de);
+  border-radius: 6px;
+  background: var(--color-canvas-default, #fff);
+  color: var(--color-fg-default, #1f2328);
+  font-size: 13px;
+  cursor: pointer;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+#md-lang-select:hover {
+  background: var(--color-canvas-subtle, #eaeef2);
+}
+
 #md-title {
   font-weight: 600;
   font-size: 14px;

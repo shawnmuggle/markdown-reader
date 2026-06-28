@@ -75,12 +75,36 @@
     });
   }
 
+  let themeBtnRef = null;
+
+  function currentTheme() {
+    return document.documentElement.getAttribute("data-theme") === "dark"
+      ? "dark"
+      : "light";
+  }
+
   function updateButton(btn, theme) {
+    themeBtnRef = btn;
     // 显示“切换到的目标”图标：当前暗色 → 显示 ☀（点了变亮）。
     btn.textContent = theme === "dark" ? "☀️" : "🌙";
-    btn.title = theme === "dark" ? "切换到浅色" : "切换到深色";
-    btn.setAttribute("aria-label", btn.title);
+    // 文案走 i18n；i18n 未就绪时退化到中文兜底。
+    const i18n = MDReader.i18n;
+    const label = i18n
+      ? theme === "dark"
+        ? i18n.t("themeToLight")
+        : i18n.t("themeToDark")
+      : theme === "dark"
+      ? "切换到浅色"
+      : "切换到深色";
+    btn.title = label;
+    btn.setAttribute("aria-label", label);
+  }
+
+  // 供语言切换时调用：用当前主题状态重刷按钮文案。
+  function refreshThemeButtonLabel() {
+    if (themeBtnRef) updateButton(themeBtnRef, currentTheme());
   }
 
   MDReader.initTheme = initTheme;
+  MDReader.refreshThemeButtonLabel = refreshThemeButtonLabel;
 })();

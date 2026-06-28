@@ -30,6 +30,7 @@
         "lib/purify.min.js",
         "lib/highlight.min.js",
         "lib/mermaid.min.js",
+        "src/i18n.js",
         "src/render.js",
         "src/toc.js",
         "src/theme.js",

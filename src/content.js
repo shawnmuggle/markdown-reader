@@ -55,13 +55,14 @@
     root.id = "md-reader-root";
     root.innerHTML = `
       <div id="md-toolbar">
-        <button id="md-toc-toggle" title="折叠/展开目录" aria-label="折叠或展开目录">☰</button>
+        <button id="md-toc-toggle">☰</button>
         <span id="md-title"></span>
         <span id="md-spacer"></span>
-        <button id="md-theme-toggle" title="切换主题" aria-label="切换主题">🌙</button>
+        <select id="md-lang-select"></select>
+        <button id="md-theme-toggle">🌙</button>
       </div>
       <div id="md-body">
-        <nav id="md-toc" aria-label="目录"></nav>
+        <nav id="md-toc"></nav>
         <main id="md-content" class="markdown-body"></main>
       </div>
     `;
@@ -79,15 +80,46 @@
       toc: root.querySelector("#md-toc"),
       tocToggle: root.querySelector("#md-toc-toggle"),
       themeToggle: root.querySelector("#md-theme-toggle"),
+      langSelect: root.querySelector("#md-lang-select"),
     };
   }
 
-  function main() {
+  // 根据当前语言刷新所有静态 UI 文案（按钮提示、aria、目录标题）。
+  // 主题按钮的文案由 theme.js 自己维护（依赖明/暗状态），这里不碰。
+  function applyUiStrings(els) {
+    const i18n = MDReader.i18n;
+    els.tocToggle.title = i18n.t("tocToggle");
+    els.tocToggle.setAttribute("aria-label", i18n.t("tocToggle"));
+    els.toc.setAttribute("aria-label", i18n.t("tocLabel"));
+    els.langSelect.title = i18n.t("langToggle");
+    els.langSelect.setAttribute("aria-label", i18n.t("langToggle"));
+  }
+
+  // 填充语言下拉选项并选中当前语言。
+  function setupLangSelect(els) {
+    const i18n = MDReader.i18n;
+    els.langSelect.innerHTML = "";
+    i18n.SUPPORTED.forEach((code) => {
+      const opt = document.createElement("option");
+      opt.value = code;
+      opt.textContent = i18n.STRINGS[code].langName;
+      els.langSelect.appendChild(opt);
+    });
+    els.langSelect.value = i18n.getLang();
+    els.langSelect.addEventListener("change", (e) => {
+      i18n.setLang(e.target.value);
+    });
+  }
+
+  async function main() {
     const source = extractMarkdownSource();
     if (source == null) return; // 不是 markdown 文本页，放行
 
     window.__mdReaderActivated = true;
     document.documentElement.classList.add("md-reader-host");
+
+    // 先确定界面语言（读偏好 / 跟随浏览器），避免文案闪烁。
+    await MDReader.i18n.init();
 
     const safeHtml = MDReader.markdownToSafeHtml(source);
     const els = buildLayout(safeHtml);
@@ -105,6 +137,14 @@
     // 目录折叠按钮
     els.tocToggle.addEventListener("click", () => {
       document.getElementById("md-reader-root").classList.toggle("md-toc-collapsed");
+    });
+
+    // 语言下拉 + 切换时重刷文案（含主题按钮提示）
+    setupLangSelect(els);
+    MDReader.i18n.onChange(() => {
+      applyUiStrings(els);
+      els.langSelect.value = MDReader.i18n.getLang();
+      if (MDReader.refreshThemeButtonLabel) MDReader.refreshThemeButtonLabel();
     });
 
     // 主题（异步读取偏好）
