@@ -9,13 +9,11 @@
     "128": "icons/icon128.png"
   },
   "permissions": ["storage"],
+  "host_permissions": ["file:///*"],
   "content_scripts": [
     {
       "matches": [
-        "file:///*.md",
-        "file:///*.markdown",
-        "file:///*.mdown",
-        "file:///*.mkd",
+        "file:///*",
         "*://*/*.md",
         "*://*/*.markdown"
       ],
@@ -34,6 +32,8 @@
         "src/render.js",
         "src/toc.js",
         "src/theme.js",
+        "src/dirview.js",
+        "src/siblings.js",
         "src/content.js"
       ],
       "run_at": "document_idle"

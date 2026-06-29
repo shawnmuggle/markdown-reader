@@ -1,6 +1,14 @@
 /* 手动主题覆盖：把 github-markdown-css 明/暗两套变量提升出 @media，
-   使 ☀/🌙 手动切换在任何系统配色下都生效。generated, do not edit by hand */
-[data-theme="light"] {
+   使 ☀/🌙 手动切换在任何系统配色下都生效。
+
+   关键：github-markdown.css 把变量挂在 `.markdown-body, [data-theme]` 上并包在
+   @media (prefers-color-scheme) 里。当系统是暗色、用户手动切到浅色时，
+   #md-content（带 .markdown-body）会被 @media dark 的 `.markdown-body` 直接命中，
+   拿到暗色 --color-fg-default（浅灰字），而背景被刷成白底 → 白底灰字看不清。
+   因此 override 必须同时覆盖 <html> 和其下的 .markdown-body，且用 `html` 前缀
+   把优先级压过裸 `.markdown-body`。手动选择优先于系统配色，且不放进 @media。 */
+html[data-theme="light"],
+html[data-theme="light"] .markdown-body {
   --color-prettylights-syntax-comment: #57606a;
   --color-prettylights-syntax-constant: #0550ae;
   --color-prettylights-syntax-entity: #6639ba;
@@ -51,7 +59,8 @@
   --color-done-fg: #8250df;
   --color-done-emphasis: #8250df;
 }
-[data-theme="dark"] {
+html[data-theme="dark"],
+html[data-theme="dark"] .markdown-body {
   --color-prettylights-syntax-comment: #8b949e;
   --color-prettylights-syntax-constant: #79c0ff;
   --color-prettylights-syntax-entity: #d2a8ff;

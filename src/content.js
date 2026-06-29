@@ -11,16 +11,27 @@
   // 幂等守卫：已渲染过就不再处理（防止脚本被重复注入）。
   if (window.__mdReaderActivated) return;
 
+  // 超过此大小（字符数 ≈ 字节）的文本文件不接管，交回 Chrome 原生显示，
+  // 避免对超大日志 / 数据文件做 marked + 高亮 + mermaid 渲染拖垮浏览器。
+  const MAX_RENDER_CHARS = 1024 * 1024; // 1 MB
+
   /**
-   * 判断本页是否是“应当被接管的纯 Markdown 文本文件”。
-   * Chrome 打开本地 / 纯文本响应的 .md 时，会把整篇原文放进单个 <pre> 里。
-   * 若页面是返回 HTML 的网页（恰好 URL 以 .md 结尾），body 结构不是单 <pre>，
-   * 此时不接管，避免破坏正常网页。
-   * @returns {string|null} 命中则返回原始 Markdown 文本，否则 null
+   * 判断本页是否是“应当被接管渲染的纯文本文件”。
+   * - .md / .markdown / .mdown / .mkd：本地与在线都接管（一直如此）。
+   * - .txt：仅本地 file:// 接管，按 Markdown 渲染（本地 txt 多是自己的笔记，
+   *   在线 .txt 常是正经文本接口，贸然当 markdown 渲染会误伤，故不碰在线）。
+   * Chrome 打开这些纯文本文件时，会把整篇原文放进单个 <pre> 里。
+   * 若页面是返回 HTML 的网页（恰好 URL 以 .md 结尾），body 不是单 <pre>，则不接管。
+   * 文本超过 MAX_RENDER_CHARS 也不接管。
+   * @returns {string|null} 命中则返回原始文本，否则 null
    */
   function extractMarkdownSource() {
     const url = location.href.split(/[?#]/)[0];
-    if (!/\.(md|markdown|mdown|mkd)$/i.test(url)) return null;
+    const isLocal = location.protocol === "file:";
+    // .md 系列：本地 + 在线都收；.txt：仅本地。
+    const isMarkdownExt = /\.(md|markdown|mdown|mkd)$/i.test(url);
+    const isLocalTxt = isLocal && /\.txt$/i.test(url);
+    if (!isMarkdownExt && !isLocalTxt) return null;
 
     const body = document.body;
     if (!body) return null;
@@ -29,7 +40,9 @@
     const onlyChild =
       body.children.length === 1 && body.children[0].tagName === "PRE";
     if (onlyChild) {
-      return body.children[0].textContent;
+      const src = body.children[0].textContent;
+      if (src && src.length > MAX_RENDER_CHARS) return null; // 太大，放行原生
+      return src;
     }
 
     // 情形 B：body 直接是纯文本节点（少数情况），且没有真正的 HTML 元素。
@@ -38,6 +51,7 @@
     );
     const text = body.textContent || "";
     if (!hasRealElements && text.trim().length > 0) {
+      if (text.length > MAX_RENDER_CHARS) return null; // 太大，放行原生
       return text;
     }
 
@@ -113,7 +127,17 @@
 
   async function main() {
     const source = extractMarkdownSource();
-    if (source == null) return; // 不是 markdown 文本页，放行
+    if (source == null) {
+      // 不是 markdown 文本页。若是本地目录列表页（file:///dir/），交给 dirview 美化接管。
+      if (MDReader.tryBuildDirView) {
+        try {
+          await MDReader.tryBuildDirView();
+        } catch (e) {
+          /* 接管失败则保留 Chrome 原生目录页，不影响用户浏览 */
+        }
+      }
+      return; // 其余普通网页一律放行
+    }
 
     window.__mdReaderActivated = true;
     document.documentElement.classList.add("md-reader-host");
@@ -129,7 +153,20 @@
 
     // 目录
     const hasToc = MDReader.buildToc(els.content, els.toc);
-    if (!hasToc) {
+
+    // 同目录文件导航（返回上一级 + 兄弟 .md 文件）。异步 fetch 父目录，
+    // 完成后再决定侧栏是否显示——所以 TOC 的隐藏判断推迟到这里之后。
+    let hasSiblings = false;
+    if (MDReader.buildSiblings) {
+      try {
+        hasSiblings = await MDReader.buildSiblings(els.toc);
+      } catch (e) {
+        /* 无法访问父目录（未授权文件访问等）则跳过，不影响阅读 */
+      }
+    }
+
+    // 侧栏里既无标题目录也无兄弟导航时才隐藏。
+    if (!hasToc && !hasSiblings) {
       els.tocToggle.style.display = "none";
       document.getElementById("md-reader-root").classList.add("md-no-toc");
     }
@@ -145,6 +182,7 @@
       applyUiStrings(els);
       els.langSelect.value = MDReader.i18n.getLang();
       if (MDReader.refreshThemeButtonLabel) MDReader.refreshThemeButtonLabel();
+      if (MDReader.refreshSiblingStrings) MDReader.refreshSiblingStrings();
     });
 
     // 主题（异步读取偏好）

@@ -14,3 +14,4 @@ node_modules/
 
 # 构建产物（用 ./pack.sh 重新生成）
 markdown-reader.zip
+.gstack/

@@ -210,3 +210,245 @@ html.md-reader-host body {
   background: var(--color-border-default, #d0d7de);
   border-radius: 4px;
 }
+
+/* =====================================================================
+   阅读页左侧：同目录文件导航（siblings）—— 注入在 TOC 顶部
+   ===================================================================== */
+.md-siblings {
+  margin: 0 0 12px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--color-border-default, #d0d7de);
+}
+
+/* 返回上一级 */
+.md-sib-parent {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 8px;
+  border-radius: 6px;
+  color: var(--color-fg-muted, #656d76);
+  text-decoration: none;
+  font-size: 13px;
+}
+
+.md-sib-parent:hover {
+  background: var(--color-canvas-subtle, #f6f8fa);
+  color: var(--color-fg-default, #1f2328);
+}
+
+.md-sib-label {
+  margin: 10px 8px 4px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--color-fg-subtle, #6e7781);
+}
+
+.md-sib-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.md-sib-item > a,
+.md-sib-current {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 13px;
+  text-decoration: none;
+  color: var(--color-fg-muted, #656d76);
+}
+
+.md-sib-item > a:hover {
+  background: var(--color-canvas-subtle, #f6f8fa);
+  color: var(--color-fg-default, #1f2328);
+}
+
+/* 当前正在阅读的文件：高亮、不可点 */
+.md-sib-current {
+  color: var(--color-accent-fg, #0969da);
+  background: var(--color-accent-subtle, #ddf4ff);
+  font-weight: 600;
+}
+
+.md-sib-icon {
+  display: inline-flex;
+  flex: 0 0 auto;
+  color: var(--color-fg-subtle, #6e7781);
+}
+
+.md-sib-current .md-sib-icon {
+  color: var(--color-accent-fg, #0969da);
+}
+
+.md-sib-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* =====================================================================
+   目录列表页（dirview）—— file:///dir/ 的美化视图
+   工具栏沿用上面的 #md-toolbar；这里是面包屑 + 卡片式文件列表。
+   ===================================================================== */
+#md-dir-main {
+  width: 100%;
+  max-width: 880px;
+  margin: 0 auto;
+  padding: 28px 24px 96px;
+  box-sizing: border-box;
+}
+
+/* 面包屑 */
+#md-crumbs {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 2px;
+  font-size: 13px;
+  color: var(--color-fg-muted, #656d76);
+  margin-bottom: 6px;
+}
+
+.md-crumb {
+  color: var(--color-accent-fg, #0969da);
+  text-decoration: none;
+  padding: 2px 4px;
+  border-radius: 5px;
+  max-width: 240px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.md-crumb:hover {
+  text-decoration: underline;
+  background: var(--color-canvas-subtle, #f6f8fa);
+}
+
+.md-crumb-sep {
+  color: var(--color-fg-subtle, #6e7781);
+  user-select: none;
+}
+
+#md-dir-count {
+  font-size: 12px;
+  color: var(--color-fg-subtle, #6e7781);
+  margin: 0 0 14px 2px;
+}
+
+/* 文件 / 子目录列表 */
+#md-dir-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border: 1px solid var(--color-border-default, #d0d7de);
+  border-radius: 10px;
+  overflow: hidden;
+  background: var(--color-canvas-default, #fff);
+}
+
+.md-dir-item + .md-dir-item,
+.md-dir-parent + .md-dir-item {
+  border-top: 1px solid var(--color-border-muted, #d8dee4);
+}
+
+.md-dir-item > a {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px;
+  text-decoration: none;
+  color: var(--color-fg-default, #1f2328);
+  transition: background-color 0.12s ease;
+}
+
+.md-dir-item > a:hover {
+  background: var(--color-canvas-subtle, #f6f8fa);
+}
+
+.md-dir-icon {
+  display: inline-flex;
+  flex: 0 0 auto;
+  color: var(--color-fg-muted, #656d76);
+}
+
+/* 子目录图标用强调色，更显眼 */
+.md-dir-folder .md-dir-icon {
+  color: var(--color-accent-fg, #0969da);
+}
+
+/* Markdown 文件图标用成功色，暗示「可直接阅读」 */
+.md-dir-md .md-dir-icon {
+  color: var(--color-success-fg, #1a7f37);
+}
+
+.md-dir-name {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 14px;
+}
+
+.md-dir-folder .md-dir-name {
+  font-weight: 600;
+}
+
+.md-dir-size {
+  flex: 0 0 auto;
+  width: 80px;
+  text-align: right;
+  font-size: 12px;
+  color: var(--color-fg-muted, #656d76);
+  font-variant-numeric: tabular-nums;
+}
+
+.md-dir-date {
+  flex: 0 0 auto;
+  width: 170px;
+  text-align: right;
+  font-size: 12px;
+  color: var(--color-fg-subtle, #6e7781);
+  font-variant-numeric: tabular-nums;
+}
+
+/* 返回上一级：置顶、低调但可点 */
+.md-dir-parent > a {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px;
+  text-decoration: none;
+  color: var(--color-fg-muted, #656d76);
+  font-size: 13px;
+  transition: background-color 0.12s ease;
+}
+
+.md-dir-parent > a:hover {
+  background: var(--color-canvas-subtle, #f6f8fa);
+  color: var(--color-fg-default, #1f2328);
+}
+
+.md-dir-empty {
+  padding: 24px 16px;
+  text-align: center;
+  font-size: 13px;
+  color: var(--color-fg-subtle, #6e7781);
+}
+
+/* 窄屏：隐藏日期列，给文件名让位 */
+@media (max-width: 640px) {
+  .md-dir-date {
+    display: none;
+  }
+  #md-dir-main {
+    padding: 20px 14px 80px;
+  }
+}
